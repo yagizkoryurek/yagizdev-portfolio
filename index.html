@@ -650,6 +650,35 @@ footer{
 .card-project .card-link{ border-top:1px solid var(--border); }
 .card-link.is-disabled{ color: var(--text-faint); pointer-events:none; }
 
+/* project cards with media + multiple actions */
+.project-card-media{
+  margin: -28px -28px 22px;
+  aspect-ratio: 16 / 9;
+  overflow:hidden;
+  border-bottom:1px solid var(--border);
+  background: var(--bg-soft);
+}
+.project-card-media img{
+  width:100%; height:100%; object-fit:cover;
+  display:block;
+  transition: transform .4s var(--ease), filter .4s var(--ease);
+}
+.card-project:hover .project-card-media img{ transform:scale(1.03); }
+.project-actions{
+  display:flex; flex-wrap:wrap; gap:10px;
+  margin-top:auto; padding-top:14px;
+  border-top:1px solid var(--border);
+}
+.project-actions .card-link{
+  margin-top:0;
+  padding-top:0;
+  border-top:0;
+}
+@media (max-width: 520px){
+  .project-actions{ flex-direction:column; align-items:flex-start; }
+}
+
+
 /* ============================================
    v0.2 — CERTIFICATES
    ============================================ */
@@ -1211,6 +1240,21 @@ footer{
       }
     },
     {
+      id: 'nexona',
+      title: 'Nexona',
+      kicker: 'AI-Powered Career Toolkit',
+      category: 'productivity',
+      status: 'active',
+      featured: false,
+      description: 'An AI-powered résumé analysis and application toolkit built with Next.js, TypeScript, Supabase, and Google Gemini.',
+      tech: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Gemini'],
+      media: 'nexona.png',
+      links: {
+        live: 'https://nexona-nine.vercel.app',
+        github: 'https://github.com/yagizkoryurek/nexona'
+      }
+    },
+    {
       id: 'golge-arenasi',
       title: 'Gölge Arenası',
       kicker: 'Fighting Game',
@@ -1380,8 +1424,26 @@ footer{
 
   function projectCardMarkup(p){
     var statusPill = p.status ? '<span class="status-pill status-' + p.status + '">' + STATUS_LABELS[p.status] + '</span>' : '';
+    var mediaMarkup = p.media
+      ? '<div class="project-card-media"><img src="' + p.media + '" alt="' + p.title + ' screenshot" loading="lazy"></div>'
+      : '';
+    var actionsMarkup = '';
+    var arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>';
+    if(p.links){
+      var actionItems = '';
+      if(p.links.live){
+        actionItems += '<a class="card-link" href="' + p.links.live + '" target="_blank" rel="noopener noreferrer">Live App' + arrow + '</a>';
+      }
+      if(p.links.github){
+        actionItems += '<a class="card-link" href="' + p.links.github + '" target="_blank" rel="noopener noreferrer">View on GitHub' + arrow + '</a>';
+      }
+      actionsMarkup = actionItems ? '<div class="project-actions">' + actionItems + '</div>' : '';
+    } else {
+      actionsMarkup = projectLinkMarkup(p);
+    }
     return (
       '<article class="card-project reveal" data-category="' + p.category + '">' +
+        mediaMarkup +
         '<div class="card-project-top">' +
           '<div class="cat-icon">' + svgIcon(CATEGORY_ICONS[p.category] || '') + '</div>' +
           statusPill +
@@ -1390,7 +1452,7 @@ footer{
         '<p class="card-kicker">' + p.kicker + '</p>' +
         '<p class="card-desc">' + p.description + '</p>' +
         chipRowMarkup(p.tech) +
-        projectLinkMarkup(p) +
+        actionsMarkup +
       '</article>'
     );
   }
